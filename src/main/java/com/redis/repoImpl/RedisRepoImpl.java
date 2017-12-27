@@ -1,7 +1,9 @@
 package com.redis.repoImpl;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +12,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Repository;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.constants.RedisKeyConstants;
+import com.redis.model.Company;
 import com.redis.model.MutualFundDto;
 import com.redis.repo.RedisRepo;
 
@@ -31,4 +35,43 @@ public class RedisRepoImpl implements RedisRepo{
 		System.out.println("size = "+mfDataSet.size());
 		redisTemplate.opsForZSet().add(RedisKeyConstants.KEY_ET_MF_DATA, mfDataSet);
 	}
+
+	@Override
+	public void putAll(List<Company> data) {
+		
+		Map<String,Company> tempMap = new HashMap<>();
+		for(Company obj :data) {
+			String key =Company.class.getSimpleName()+":"+obj.getSymbol();
+			tempMap.put(key, obj);
+			redisTemplate.opsForHash().putAll(key, convertToMap(obj));
+		}
+		
+		
+		
+	}
+	
+	public Map<String,Object> convertToMap(Object object){
+		ObjectMapper mapper = new ObjectMapper();
+		@SuppressWarnings("unchecked")
+		Map<String,Object> map=mapper.convertValue(object, Map.class);
+		return map;
+		
+	}
+	
+	public Set<String> getKeys(String pattern){
+		return redisTemplate.keys("Company*");
+	}
+	
+	@Override
+	public List<Object> getCompaniesBySymbols(List<String> symbols){
+		Set<String> keys = new HashSet<>(symbols.size());
+		for(String symbol:symbols) {
+			String key = Company.class.getSimpleName()+":"+symbol;
+			keys.add(key);
+		}
+		return redisTemplate.opsForValue().multiGet(keys);
+		
+	}
+	
+	
 }
