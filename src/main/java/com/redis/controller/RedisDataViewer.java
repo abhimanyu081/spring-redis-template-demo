@@ -8,18 +8,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.redis.repo.RedisRepo;
+import com.redis.model.Company;
+import com.redis.repo.RedisSortedSetOperations;
 
 @RestController
 public class RedisDataViewer {
 	
-	@Autowired RedisRepo redisRepo;
+	@Autowired RedisSortedSetOperations<Company> redisRepo;
 	
 	
-	@RequestMapping("company/all")
-	public List<Object> getCompaniesBySymbols(@RequestParam("symbols")String symbols){
-		List<String> symbolList = Arrays.asList(symbols.split(","));
-		return redisRepo.getCompaniesBySymbols(symbolList);
-	}
+	
 
 }

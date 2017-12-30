@@ -1,6 +1,6 @@
 package com.redis.cron;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -8,15 +8,16 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.redis.constants.RedisKeyConstants;
 import com.redis.helper.CsvFileParser;
 import com.redis.helper.LiveStockDataFetcher;
-import com.redis.model.Company;
-import com.redis.repo.RedisRepo;
+import com.redis.model.LiveStockQuote;
+import com.redis.repo.RedisSortedSetOperations;
 
 @Component
 public class DataCron {
 
-	@Autowired RedisRepo redisRepo;
+	@Autowired RedisSortedSetOperations<LiveStockQuote> redisRepo;
 	
 	@Autowired LiveStockDataFetcher dataFetcher;
 	
@@ -26,12 +27,8 @@ public class DataCron {
 	
 	@PostConstruct
 	public void init() {
-		try {
-			List<Company> companyMetaData=csvParser.parseCompanyCSV();
-			redisRepo.putAll(companyMetaData);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		List<LiveStockQuote> companyMetaData=new ArrayList<>();
+		redisRepo.insertAllToSortedSet(RedisKeyConstants.EQUITY_GAINERS, companyMetaData);
 	}
+	
 }

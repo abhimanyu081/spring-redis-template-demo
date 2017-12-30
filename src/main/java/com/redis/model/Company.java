@@ -1,10 +1,12 @@
 package com.redis.model;
 
-import java.math.BigDecimal;
+import org.springframework.data.redis.core.DefaultTypedTuple;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.opencsv.bean.CsvBindByName;
 
-public class Company {
+public class Company implements Tuple<Company>{
 
 	@CsvBindByName
 	private String name;
@@ -13,7 +15,7 @@ public class Company {
 	private String symbol;
 
 	@CsvBindByName
-	private BigDecimal marketCap;
+	private Double marketCap;
 
 	@CsvBindByName
 	private String sector;
@@ -37,11 +39,13 @@ public class Company {
 		this.symbol = symbol;
 	}
 
-	public BigDecimal getMarketCap() {
+	
+
+	public Double getMarketCap() {
 		return marketCap;
 	}
 
-	public void setMarketCap(BigDecimal marketCap) {
+	public void setMarketCap(Double marketCap) {
 		this.marketCap = marketCap;
 	}
 
@@ -65,6 +69,13 @@ public class Company {
 	public String toString() {
 		return "Company [name=" + name + ", symbol=" + symbol + ", marketCap=" + marketCap + ", sector=" + sector
 				+ ", industry=" + industry + "]";
+	}
+
+	@Override
+	@JsonIgnore
+	public TypedTuple<Company> createTuple() {
+		TypedTuple<Company> tuple = new DefaultTypedTuple<Company>(this, this.getMarketCap());
+		return tuple;
 	}
 
 }
