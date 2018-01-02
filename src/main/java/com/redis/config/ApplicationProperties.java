@@ -10,13 +10,14 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 @PropertySource(value = { "classpath:application.properties" })
 public class ApplicationProperties {
 	
-	@Value("data.api.key")
+	@Value("${data.api.key}")
 	private String stockDataApiKey;
 	
 	
 	
 	
 	public String getStockDataApiKey() {
+		System.out.println(stockDataApiKey);
 		return stockDataApiKey;
 	}
 

@@ -38,7 +38,7 @@ public class LiveStockDataFetcher {
 	public static final String DATA_LINK = "http://192.168.25.136/ET_Market/marketdata";
 	public static final String MF_DATA_LINK = "http://qc.bselivefeeds.indiatimes.com/mf1/schemes/all.htm?size=10";
 
-	public static final String BATCH_QUOTE_LINK = "https://www.alphavantage.co/query";
+	public static final String BATCH_QUOTE_LINK = "https://www.alphavantage.co/query?function=BATCH_STOCK_QUOTES&apikey=88O9B6TBK5RV5ACH&";
 	
 	public String fetchLiveStockDataFromUrl(String dataType) {
 		RestTemplate restTemplate = new RestTemplate();
@@ -48,7 +48,7 @@ public class LiveStockDataFetcher {
 	}
 
 	
-	public List<LiveStockQuote> getBatchStockQuote(String symbols){
+	public  List<LiveStockQuote> getBatchStockQuote(String symbols){
 		try {
 			String jsonStrResponse=getResponseString(BATCH_QUOTE_LINK, 
 					getParamsMap(symbols, API_FUNCTION.BATCH_STOCK_QUOTES.name(), props.getStockDataApiKey()));
@@ -69,6 +69,8 @@ public class LiveStockDataFetcher {
 		} catch (JsonParseException e) {
 			LOG.error("JSON Parsed Exception", e.getOriginalMessage());
 		} catch (JsonMappingException e) {
+			e.printStackTrace();
+			
 			LOG.error("Exception Occured While Mapping json to POJO", e.getOriginalMessage());
 		} catch (JSONException e) {
 			LOG.error("JSON Parsed Exception", e.getMessage());
@@ -80,8 +82,16 @@ public class LiveStockDataFetcher {
 	}
 	
 	public String getResponseString(String url, Map<String,String> params) {
+		System.out.println(params);
 		RestTemplate template = new RestTemplate();
-		return template.getForEntity(url, String.class, params).getBody();
+		url = BATCH_QUOTE_LINK+"&symbols="+params.get("symbols");
+		System.out.println(url);
+		String str =template.getForEntity(url,String.class).getBody();
+		System.out.println("############   URRL RESPONSE ###########");
+		
+		System.out.println(str);
+		return str;
+		
 	}
 	
 	public Map<String,String> getParamsMap(String symbols,String function,String apiKey){
